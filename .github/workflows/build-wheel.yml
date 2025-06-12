@@ -46,10 +46,10 @@ jobs:
       - name: Prepare wheel package dir
         run: |
           cp install/gz_math_vendor/opt/gz_math_vendor/lib/python/gz/*.so \
-             ${WHEEL_PKG}/gz/.
+             ${{ WHEEL_PKG }}/gz/.
 
       - name: Build wheel
-        working-directory: ${WHEEL_PKG}
+        working-directory: ${{ WHEEL_PKG }}
         run: |
           python${{ env.PYTHON_VERSION }} -m pip install --upgrade build
           python${{ env.PYTHON_VERSION }} -m build --wheel
@@ -66,4 +66,4 @@ jobs:
         with:
           tag_name: ${{ github.ref }}
           files: |
-            ${WHEEL_PKG}/dist/*.whl
+            ${{ WHEEL_PKG }}/dist/*.whl
