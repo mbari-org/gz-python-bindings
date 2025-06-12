@@ -13,5 +13,7 @@ authors = [
 readme = "../README.md"
 requires-python = ">=3.12"
 
-# We only ship the 'gz' package; inside it are three extension modules.
-packages = ["gz"]
+[tool.setuptools.packages.find]
+# Look in the current directory (where gz/ lives)
+where = ["."]
+include = ["gz", "gz.*"]
