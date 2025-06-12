@@ -10,7 +10,7 @@ description = "Python bindings for Gazebo math & sim vendors"
 authors = [
   { name="Michael Anderson", email="anderson@mbari.org" },
 ]
-readme = "../README.md"
+#readme = "../README.md"
 requires-python = ">=3.12"
 
 [tool.setuptools.packages.find]
