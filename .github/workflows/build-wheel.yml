@@ -34,7 +34,8 @@ jobs:
           sudo apt install -y \
             ros-jazzy-ros-base \
             python3-colcon-common-extensions \
-            ros-jazzy-ament-cmake-vendor-package
+            ros-jazzy-ament-cmake-vendor-package \
+            ros-jazzy-gz-cmake-vendor
 
       - name: Build math & sim with Colcon
         run: |
