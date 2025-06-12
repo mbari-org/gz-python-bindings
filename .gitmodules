@@ -1,0 +1,8 @@
+[submodule "src/gz_math_vendor"]
+	path = src/gz_math_vendor
+	url = https://github.com/mbari-org/gz_math_vendor.git
+	branch = jazzy_enable_python
+[submodule "src/gz_sim_vendor"]
+	path = src/gz_sim_vendor
+	url = https://github.com/mbari-org/gz_sim_vendor.git
+	branch = jazzy_enable_python

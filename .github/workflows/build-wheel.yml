@@ -1,0 +1,69 @@
+name: Build & Release Wheel
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    env:
+      PYTHON_VERSION: '3.12'
+      WHEEL_PKG: wheel_pkg
+
+    steps:
+      - name: Checkout code (with submodules)
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Install Colcon & deps
+        run: |
+          sudo apt update
+          sudo apt install -y python3-colcon-common-extensions
+
+      - name: Build math & sim with Colcon
+        run: |
+          # build math
+          colcon build --merge-install --install-base install_math \
+                       --packages-select gz_math_vendor
+          # build sim
+          colcon build --merge-install --install-base install_sim \
+                       --packages-select gz_sim_vendor
+
+      - name: Prepare wheel package dir
+        run: |
+          mkdir -p ${WHEEL_PKG}/gz
+
+          # copy & rename math7 → math.so
+          cp install_math/gz_math_vendor/opt/gz_math_vendor/lib/python/gz/math/math7*.so \
+             ${WHEEL_PKG}/gz/math.so
+
+          # copy & rename common5 → common.so
+          cp install_sim/gz_sim_vendor/opt/gz_sim_vendor/lib/python/gz/common5*.so \
+             ${WHEEL_PKG}/gz/common.so
+
+          # copy & rename sim8 → sim.so
+          cp install_sim/gz_sim_vendor/opt/gz_sim_vendor/lib/python/gz/sim8*.so \
+             ${WHEEL_PKG}/gz/sim.so
+
+      - name: Build wheel
+        working-directory: ${WHEEL_PKG}
+        run: |
+          python${{ env.PYTHON_VERSION }} -m pip install --upgrade build
+          python${{ env.PYTHON_VERSION }} -m build --wheel
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.ref }}
+          name: Release ${{ github.ref }}
+          body: Automated wheel for ${{ github.ref }}
+
+      - name: Upload wheel
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.ref }}
+          files: |
+            ${WHEEL_PKG}/dist/*.whl

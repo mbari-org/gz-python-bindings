@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gz-python-bindings"
+# sim8.common5.math7+jazzy(ros 2)harmonic(gz)
+version = "8.5.7+jazzyharmonic"
+description = "Python bindings for Gazebo math & sim vendors"
+authors = [
+  { name="Michael Anderson", email="anderson@mbari.org" },
+]
+readme = "../README.md"
+requires-python = ">=3.12"
+
+# We only ship the 'gz' package; inside it are three extension modules.
+packages = ["gz"]
