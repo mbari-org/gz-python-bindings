@@ -35,13 +35,13 @@ jobs:
             ros-jazzy-ros-base \
             python3-colcon-common-extensions \
             ros-jazzy-ament-cmake-vendor-package \
-            ros-jazzy-gz-cmake-vendor \
-            ros-jazzy-gz-utils-vendor
+            ros-jazzy-gz-sim-vendor \
+            ros-jazzy-gz-math-vendor
 
       - name: Build math & sim with Colcon
         run: |
-          source /opt/ros/jazzy/setup.bash
-          colcon build --merge-install --packages-up-to gz_sim_vendor gz_math_vendor
+          source /opt/ros/jazzy/setup.bash && \
+          colcon build --allow-overriding gz_sim_vendor gz_math_vendor --packages-select gz_sim_vendor gz_math_vendor
 
       - name: Prepare wheel package dir
         run: |
