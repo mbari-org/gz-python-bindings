@@ -13,9 +13,16 @@ authors = [
 #readme = "../README.md"
 requires-python = ">=3.12"
 
-[tool.setuptools]
-ext-modules = [
-  { name = "gz.math7", sources = [] },
-  { name = "gz.sim8", sources = [] },
-  { name = "gz.common5", sources = [] },
-]
+#[tool.setuptools]
+#ext-modules = [
+#  { name = "gz.math7", sources = [] },
+#  { name = "gz.sim8", sources = [] },
+#  { name = "gz.common5", sources = [] },
+#]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["gz", "gz.*"]
+
+[tool.setuptools.package-data]
+"gz" = ["*.so"]

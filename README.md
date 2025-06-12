@@ -1,9 +1,15 @@
 # gz-python-bindings
 
-Install:
+## Install:
 
 ```
-pip install https://github.com/mbari-org/gz-python-bindings/\
-releases/download/<version\>/\
-gz_python_bindings-<version\>-cp312-cp312-manylinux1_x86_64.whl
+python3 -m pip install -i https://mbari-org.github.io/gz-python-bindings gz-python-bindings
+```
+
+## Use:
+
+```
+from gz.sim8 import *
+from gz.common5 import *
+from gz.math7 import *
 ```
