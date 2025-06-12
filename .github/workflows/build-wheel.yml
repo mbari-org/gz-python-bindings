@@ -17,6 +17,7 @@ jobs:
         with:
           submodules: recursive
 
+      # Install ROS 2 and Gazebo
       - name: Setup ROS 2 Jazzy apt repo
         run: |
           sudo apt update && sudo apt install -y software-properties-common curl gnupg lsb-release
@@ -37,6 +38,7 @@ jobs:
             ros-jazzy-gz-sim-vendor \
             ros-jazzy-gz-math-vendor
 
+      # Build gz math and sim vendor python bindings
       - name: Build math & sim with Colcon
         run: |
           source /opt/ros/jazzy/setup.bash && \
@@ -47,22 +49,66 @@ jobs:
           cp install/gz_math_vendor/opt/gz_math_vendor/lib/python/gz/*.so \
              wheel_pkg/gz/.
 
+      # Turn it into a whl
       - name: Build wheel
         working-directory: wheel_pkg
         run: |
           python${{ env.PYTHON_VERSION }} -m pip install --upgrade build
           python${{ env.PYTHON_VERSION }} -m build --wheel
 
+      # Release it
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref }}
           name: Release ${{ github.ref }}
           body: Automated wheel for ${{ github.ref }}
+          files: wheel_pkg/dist/*.whl
 
-      - name: Upload wheel
-        uses: softprops/action-gh-release@v1
+      # Set up gh pages to work as a simple pypi index for pip install
+      - name: Checkout gh-pages branch
+        uses: actions/checkout@v3
         with:
-          tag_name: ${{ github.ref }}
-          files: |
-            wheel_pkg/dist/*.whl
+          # Assumes gh-pages branch already exists
+          ref: gh-pages
+          path: gh-pages
+
+      - name: Copy new wheel into PyPI index folder
+        run: |
+          # Find the built wheel filename
+          WHEEL_FILE=$(basename wheel_pkg/dist/*.whl)
+          # Prepare simple index path under gh-pages
+          mkdir -p gh-pages/simple/gz-python-bindings
+          # Copy the wheel into the index directory
+          cp wheel_pkg/dist/${WHEEL_FILE} gh-pages/simple/gz-python-bindings/
+
+      - name: Regenerate index.html for gz-python-bindings
+        run: |
+          IDX_DIR=gh-pages/simple/gz-python-bindings
+          # Generate an index.html listing all .whl files in that directory
+          {
+            echo "<html><body>"
+            for f in "$IDX_DIR"/*.whl; do
+              fname=$(basename "$f")
+              # link URL is relative, so pip will resolve as <base_url>/simple/gz-python-bindings/<fname>
+              echo "  <a href=\"${fname}\">${fname}</a><br/>"
+            done
+            echo "</body></html>"
+          } > "$IDX_DIR/index.html"
+
+      - name: Commit and push index updates
+        run: |
+          cd gh-pages
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          # Stage the new wheel and updated index.html
+          git add simple/gz-python-bindings/
+          # Use the tag name (strip "refs/tags/")
+          VER=${GITHUB_REF#refs/tags/}
+          # Commit (if there are changes)
+          if ! git diff --cached --quiet; then
+            git commit -m "Update PyPI index for gz-python-bindings ${VER}"
+            git push origin gh-pages
+          else
+            echo "No changes to gh-pages; skipping commit."
+          fi
