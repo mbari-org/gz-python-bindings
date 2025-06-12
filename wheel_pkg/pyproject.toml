@@ -13,9 +13,9 @@ authors = [
 #readme = "../README.md"
 requires-python = ">=3.12"
 
-[tool.setuptools.ext-modules]
-# List each module matching .so filenames (import path = gz.<module>)
-# Empty sources signals setuptools to treat as extension but not compile.
-gz.math7   = { sources = [] }
-gz.sim8    = { sources = [] }
-gz.common5 = { sources = [] }
+[tool.setuptools]
+ext-modules = [
+  { name = "gz.math7", sources = [] },
+  { name = "gz.sim8", sources = [] },
+  { name = "gz.common5", sources = [] },
+]
