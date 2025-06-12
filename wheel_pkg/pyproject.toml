@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=74.1", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -13,7 +13,9 @@ authors = [
 #readme = "../README.md"
 requires-python = ">=3.12"
 
-[tool.setuptools.packages.find]
-# Look in the current directory (where gz/ lives)
-where = ["."]
-include = ["gz", "gz.*"]
+[tool.setuptools.ext-modules]
+# List each module matching .so filenames (import path = gz.<module>)
+# Empty sources signals setuptools to treat as extension but not compile.
+gz.math7   = { sources = [] }
+gz.sim8    = { sources = [] }
+gz.common5 = { sources = [] }
