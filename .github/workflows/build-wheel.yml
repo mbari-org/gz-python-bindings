@@ -18,38 +18,32 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Ensure CMake
-        run: sudo apt update && sudo apt install -y cmake build-essential
-
-      - name: Install Colcon via pip
+      - name: Setup ROS 2 Jazzy apt repo
         run: |
-          python3 -m pip install --upgrade pip
-          python3 -m pip install colcon-common-extensions
+          sudo apt update && sudo apt install -y software-properties-common curl gnupg lsb-release
+          sudo add-apt-repository universe
+          sudo curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key \
+            -o /usr/share/keyrings/ros-archive-keyring.gpg
+          echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] \
+            http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo $UBUNTU_CODENAME) main" \
+            | sudo tee /etc/apt/sources.list.d/ros2-jazzy.list
+
+      - name: Install ROS 2 Jazzy & Colcon
+        run: |
+          sudo apt update
+          sudo apt install -y \
+            ros-jazzy-ros-base \
+            python3-colcon-common-extensions
 
       - name: Build math & sim with Colcon
         run: |
-          # build math
-          colcon build --merge-install --install-base install_math \
-                       --packages-select gz_math_vendor
-          # build sim
-          colcon build --merge-install --install-base install_sim \
-                       --packages-select gz_sim_vendor
+          source /opt/ros/jazzy/setup.bash
+          colcon build --merge-install --packages-up-to gz_sim_vendor gz_math_vendor
 
       - name: Prepare wheel package dir
         run: |
-          mkdir -p ${WHEEL_PKG}/gz
-
-          # copy & rename math7 → math.so
-          cp install_math/gz_math_vendor/opt/gz_math_vendor/lib/python/gz/math/math7*.so \
-             ${WHEEL_PKG}/gz/math.so
-
-          # copy & rename common5 → common.so
-          cp install_sim/gz_sim_vendor/opt/gz_sim_vendor/lib/python/gz/common5*.so \
-             ${WHEEL_PKG}/gz/common.so
-
-          # copy & rename sim8 → sim.so
-          cp install_sim/gz_sim_vendor/opt/gz_sim_vendor/lib/python/gz/sim8*.so \
-             ${WHEEL_PKG}/gz/sim.so
+          cp install/gz_math_vendor/opt/gz_math_vendor/lib/python/gz/*.so \
+             ${WHEEL_PKG}/gz/.
 
       - name: Build wheel
         working-directory: ${WHEEL_PKG}
