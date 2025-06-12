@@ -35,7 +35,8 @@ jobs:
             ros-jazzy-ros-base \
             python3-colcon-common-extensions \
             ros-jazzy-ament-cmake-vendor-package \
-            ros-jazzy-gz-cmake-vendor
+            ros-jazzy-gz-cmake-vendor \
+            ros-jazzy-gz-utils-vendor
 
       - name: Build math & sim with Colcon
         run: |
