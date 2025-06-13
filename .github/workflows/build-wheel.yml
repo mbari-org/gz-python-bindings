@@ -51,9 +51,10 @@ jobs:
 
       - name: Verify .so contains PyInit_* before packaging
         run: |
+          ls wheel_pkg/gz/*.so
           for sofile in wheel_pkg/gz/*.so; do
             echo "Checking $sofile"
-            nm -D "$sofile" | grep PyInit_ || (echo "Missing PyInit_ symbol in $sofile" && exit 1)
+            nm -D "$sofile" | grep PyInit
           done
 
       # Turn it into a whl
@@ -61,18 +62,21 @@ jobs:
         working-directory: wheel_pkg
         run: |
           python${{ env.PYTHON_VERSION }} -m pip install --upgrade build
-          python${{ env.PYTHON_VERSION }} -m build --wheel \
-            --config-setting="--root-is-pure=false" \
-            --config-setting="--plat-name=linux_x86_64" \
-            --config-setting="--python-tag=cp312"
-            # Release it
-            - name: Create GitHub Release
-              uses: softprops/action-gh-release@v2
-              with:
-                tag_name: ${{ github.ref }}
-                name: Release ${{ github.ref }}
-                body: Automated wheel for ${{ github.ref }}
-                files: wheel_pkg/dist/*.whl
+          python${{ env.PYTHON_VERSION }} -m build --wheel
+          python3 -m wheel tags --remove \
+            --python-tag cp312 \
+            --abi-tag cp312 \
+            --platform-tag manylinux_2_39_x86_64 \
+            dist/*.whl
+
+      # Release it
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref }}
+          name: Release ${{ github.ref }}
+          body: Automated wheel for ${{ github.ref }}
+          files: wheel_pkg/dist/*.whl
 
       - name: Smoke test for gz bindings
         run: |
