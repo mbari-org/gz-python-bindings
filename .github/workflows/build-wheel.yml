@@ -83,6 +83,7 @@ jobs:
           python${{ env.PYTHON_VERSION }} -m venv testenv
           source testenv/bin/activate
           python -m pip install wheel_pkg/dist/*.whl
+          source /opt/ros/jazzy/setup.bash && \
           python -c "import gz; import gz.math7; import gz.sim8; import gz.common5; print('All gz modules imported OK')"
 
       # Set up gh pages to work as a simple pypi index for pip install
