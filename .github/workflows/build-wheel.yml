@@ -48,14 +48,17 @@ jobs:
         run: |
           cp install/gz_math_vendor/opt/gz_math_vendor/lib/python/gz/*.so \
              wheel_pkg/gz/.
+          cp install/gz_sim_vendor/opt/gz_sim_vendor/lib/python/gz/*.so \
+             wheel_pkg/gz/.
 
-      - name: Verify .so contains PyInit_* before packaging
+      - name: Verify .so packaging
         run: |
-          ls wheel_pkg/gz/*.so
-          for sofile in wheel_pkg/gz/*.so; do
-            echo "Checking $sofile"
-            nm -D "$sofile" | grep PyInit
-          done
+          source /opt/ros/jazzy/setup.bash && \
+          PYTHONPATH=$PYTHONPATH:install/gz_sim_vendor/opt/gz_sim_vendor/lib/python:install/gz_math_vendor/opt/gz_math_vendor/lib/python \
+          python -c "print('checking install'); import gz; import gz.math7; import gz.sim8; import gz.common5; print('All gz modules imported OK')"
+          source /opt/ros/jazzy/setup.bash && \
+          PYTHONPATH=$PYTHONPATH:wheel_pkg \
+          python -c "print('checking wheel_pkg'); import gz; import gz.math7; import gz.sim8; import gz.common5; print('All gz modules imported OK')"
 
       # Turn it into a whl
       - name: Build wheel
@@ -84,7 +87,7 @@ jobs:
           source testenv/bin/activate
           python -m pip install wheel_pkg/dist/*.whl
           source /opt/ros/jazzy/setup.bash && \
-          python -c "import gz; import gz.math7; import gz.sim8; import gz.common5; print('All gz modules imported OK')"
+          python -c "print('checking whl'); import gz; import gz.math7; import gz.sim8; import gz.common5; print('All gz modules imported OK')"
 
       # Set up gh pages to work as a simple pypi index for pip install
       - name: Checkout gh-pages branch
