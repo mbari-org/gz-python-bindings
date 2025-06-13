@@ -3,7 +3,7 @@
 ## Install:
 
 ```
-python3 -m pip install -i https://mbari-org.github.io/gz-python-bindings gz-python-bindings
+python3 -m pip install -i https://mbari-org.github.io/gz-python-bindings/simple gz-python-bindings
 ```
 
 ## Use:
